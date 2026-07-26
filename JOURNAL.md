@@ -78,3 +78,19 @@ flowchart TD
 ```
 
 ---
+
+## 4. Prompt para Agente de IA
+
+* **Fecha:** 26 de julio de 2026
+* **Estado:** En proceso
+
+---
+
+### Objetivo
+
+Crear un prompt que se alinee con los objetivos de la empresa y con su cultura, y que ayude a los desarrolladores que buscan documentación.
+
+---
+
+### Decisión
+Se crea un prompt para brindarle un tono de apoyo y alineado con los valores de la empresa. Se le otorga la libertad al agente de enlazar respuestas y ofrecer una que haga sentido con la documentación disponible. No se le brindará libertad para dar información que no se encuentre en el repositorio.
