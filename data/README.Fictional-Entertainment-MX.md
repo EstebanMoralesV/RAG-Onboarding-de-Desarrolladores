@@ -205,4 +205,10 @@ Toda decisión debe cumplir con la mayor cantidad posible de estos principios.
 
 ### *Innovamos tecnología para conectar historias.*
 
+![-----------------------------------------------------](https://raw.githubusercontent.com/andreasbm/readme/master/assets/lines/rainbow.png)
+
+**Documento generado con fines académicos**
+
+*Fictional Entertainment MX es una empresa ficticia.*
+
 </div>
