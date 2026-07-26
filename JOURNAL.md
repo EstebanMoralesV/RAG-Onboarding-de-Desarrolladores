@@ -57,7 +57,7 @@ flowchart TD
 
 **Simplicidad y Bajas Latencias:** Dado que esta herramienta nativa de n8n simplifica el desarrollo para este proyecto, no se requiere de un almacenamiento de vectores externo. Además, gracias a que este corre en memoria, reduce la latencia de las consultas a proveedores externos.
 
-#### Embeddings de Cohere (embed-multilingual-v3.0 (1024 Dimensiones)):
+#### Embeddings de Cohere (`embed-multilingual-v3.0 (1024 Dimensiones)`):
 
 **Multilingüe:** Este modelo soporta embeddings en español, lo cual es vital para que el proyecto funcione, ya que la información del repositorio se encuentra en este lenguaje.  
 **Dimensión:** Nos brinda un excelente balance entre precisión semántica (*retrieval recall*) y costo computacional.
@@ -82,7 +82,7 @@ flowchart TD
 ## 4. Prompt para Agente de IA
 
 * **Fecha:** 26 de julio de 2026
-* **Estado:** En proceso
+* **Estado:** Completado
 
 ---
 
@@ -94,3 +94,41 @@ Crear un prompt que se alinee con los objetivos de la empresa y con su cultura, 
 
 ### Decisión
 Se crea un prompt para brindarle un tono de apoyo y alineado con los valores de la empresa. Se le otorga la libertad al agente de enlazar respuestas y ofrecer una que haga sentido con la documentación disponible. No se le brindará libertad para dar información que no se encuentre en el repositorio.
+
+## 5. Elección Chat Model y Memoria.
+
+* **Fecha:** 26 de julio de 2026
+* **Estado:** Completado
+
+---
+
+### Decisión
+
+#### Cohere Chat Model (`command-a-03-2025`):
+
+**Compatibilidad:** Se prioriza la compatibilidad con el embedding, que es del mismo modelo.
+**Versión:** Nos brinda más contexto e información reciente; aunque existe uno más actualizado `command-a-plus-05-2026`, actualmente no está disponible para pruebas.
+**Ventana de contexto:** Cohere command-a-03-2025 nos da una ventana de contexto generosa (256,000 tokens) que es ideal para este tipo de escenarios, en donde se podrían consultar múltiples documentos para dar una respuesta coherente y fundamentada.
+
+#### Almacenmiento:
+
+**Memoria simpre:** Se eligió este tipo de memoria para mantener simple el proyecto. Esta memoria se almacena en memoria RAM, pero podría ser sustituida por otras herramientas para mantener el flujo de chat. Además, esta memoria está limitada a 5 mensajes para no saturar la RAM, por lo que la IA perderá el contexto de manera fácil.
+
+### Flujo
+
+```mermaid
+flowchart TD
+    A[When chat message received] -->|1 item / Consulta| B[AI Agent]
+    
+    subgraph Componentes del Agente
+        C[Cohere Chat Model] -->|Chat Model| B
+        D[Simple Memory] -->|Memory / Limite 5 msgs| B
+        E[(Simple Vector Store1)] -->|Tool / Búsqueda RAG| B
+    end
+
+    subgraph Configuración del Vector Store
+        F[Embeddings Cohere1] -->|Embeddings / 1024 dim| E
+    end
+
+    B -->|Respuesta fundamentada| G[Respuesta al usuario]
+```
