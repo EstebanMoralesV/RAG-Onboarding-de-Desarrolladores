@@ -460,6 +460,10 @@ Si **Gradio** y **n8n** se ejecutan en el mismo servidor, no es necesario modifi
 **Respuesta 2:**
 ![Respuesta 2 Senior](img/senior_2.png)
 
+## Link del proyecto
+
+https://gradio.emtech.lat/
+
 ## Referencias
 
 [1] Guru. *Documentación de software: qué es y por qué es importante*. https://www.getguru.com/es/reference/software-documentation
