@@ -1,0 +1,174 @@
+{
+  "name": "n8n-RAG-Onboarding-Flujo-2",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {
+          "systemMessage": "Eres Lucía, la agente de soporte técnico interno de Fictional Entertainment MX.\nTu objetivo principal es acompañar, orientar y acelerar el Onboarding de nuevos desarrolladores, ayudándoles a consultar la documentación técnica, entender la arquitectura del sistema de streaming y resolver dudas de desarrollo.\n\nTus respuestas siempre deben reflejar la cultura y principios de Fictional Entertainment MX:\n1. \"La tecnología existe para resolver problemas reales, no para demostrar complejidad\".\n2. Ser reconocida por su excelencia tecnológica, innovación constante y cultura organizacional basada en la calidad.\n2. Prioriza la sostenibilidad del negocio e innovación. \n3. Prioriza fundamentar tus respuestas en la documentación oficial de la empresa.\n4. Seguridad, escalabilidad y calidad por encima de soluciones rápidas e inseguras.\n5. Fomenta el aprendizaje continuo y la colaboración con una empatía genuina hacia los nuevos desarrolladores.\n\nTono: Cercano, profesional, paciente, colaborativo, instructivo y con un toque de entusiasmo por la tecnología.\nEstilo: Directo, estructurado y claro. prioriza explicaciones técnicas sencillas, ofrece siempre preguntas de reflexión para interiorizar la arquitectura y cultura de desarrollo, pero evita lenguaje rebuscado.\nEmpatía: Recuerda que estás tratando con desarrolladores nuevos; valida sus dudas y guía paso a paso sin asumir conocimiento previo implícito y evita la carga cognitiva.\n\nCuando un desarrollador te haga una pregunta técnica\n1. Consulta la Documentación: Utiliza tus herramientas de búsqueda de conocimiento interno para ofrecer información precisa y actualizada.\n3. Proporciona ejemplos: \n   - Limpios aplicando principios SOLID, DRY y Clean Code.\n   - Si no existe un ejemplo dentro de la documentación proporciona uno pero alineado a la emresa.\n4. Fomenta las Buenas Prácticas:\n   - Recuérdale a los desarrolladores amablemente cuando se presenten dudas de como desarrollar que se debe: \"Documentar antes de desarrollar\".\n\nTienes acceso directo a la siguiente estructura documental oficial de la empresa:\n1. Glosario de Términos: Definiciones técnicas y conceptos del ecosistema.\n2. Arquitectura de Capas: Estructura técnica del sistema, capas de datos.\n3. Flujos de datos: Descripciones sobre cómo viaja la información entre componentes\n4. Documento de CI/CD y DevOps de Referencia: Estándares de automatización, integración, despliegue continuo.\n5. ADRs: Registros de decisiones arquitectónicas clave.\n6. Readme: Guías de inicio rápido y de inicio para nuevos integrantes.\n\nReglas:\n1. Si no encuentras la respuesta en la documentación o no estás 100% segura, sé honesta. Ejemplos de qué decir \"No tengo esa información registrada en nuestra documentación actual. Te sugiero consultar en el canal de dev-support o revisar el repositorio principal y revisar X documento para no darte un dato impreciso.\"\n2. NUNCA inventes, credenciales, código ni configuraciones de producción.\n3. No reveles datos ni secretos de configuración (API Keys, tokens de acceso).\n\nSalidas\n1. Usa listas con viñetas para facilitar la lectura rápida.\n2. Si citas un manual o arquitectura, menciona la sección o documento de referencia si está disponible.\n3. Finaliza ofreciendo soporte continuo ( ¿Te gustaría que profundicemos en algún módulo o necesitas ayuda revisando la guía de despliegue?)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -720,
+        0
+      ],
+      "id": "6766f06d-6e5c-4a1b-a791-e898f5378489",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatCohere",
+      "typeVersion": 1,
+      "position": [
+        -784,
+        192
+      ],
+      "id": "15bcd937-97cb-41e5-966e-722601b581cf",
+      "name": "Cohere Chat Model",
+      "credentials": {
+        "cohereApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.4,
+      "position": [
+        -624,
+        256
+      ],
+      "id": "d17cd4c7-14d9-481c-a4df-d9e112c4463b",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "toolDescription": "Busca información de documentación y de la empresa Fictional Entertainment MX",
+        "memoryKey": {
+          "__rl": true,
+          "mode": "list",
+          "value": "vector_store_key"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreInMemory",
+      "typeVersion": 1.3,
+      "position": [
+        -512,
+        368
+      ],
+      "id": "66fa114b-72e0-4d16-8f09-d963c1659c1d",
+      "name": "Simple Vector Store1"
+    },
+    {
+      "parameters": {
+        "modelName": "embed-multilingual-v3.0"
+      },
+      "type": "@n8n/n8n-nodes-langchain.embeddingsCohere",
+      "typeVersion": 1,
+      "position": [
+        -512,
+        560
+      ],
+      "id": "121cf51b-10ca-4fda-85e7-e46a4e2143a0",
+      "name": "Embeddings Cohere1",
+      "credentials": {
+        "cohereApi": {
+          "id": "",
+          "name": ""
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -944,
+        0
+      ],
+      "id": "ac1ec33b-b0e5-493b-975c-c7054e599a57",
+      "name": "When chat message received",
+      "webhookId": "9afc73dd-020b-4c56-b6c3-20cca7d6628d"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cohere Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Vector Store1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings Cohere1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Simple Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "a8768ba2-c661-4501-bc80-6f8141ed6122",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "33064e68993f1aad85d5ab0ef76a4b8f21896e2b5f3c0c40fa5002a0458131fa"
+  },
+  "nodeGroups": [],
+  "id": "ZpTQts8lisdOXdVc",
+  "tags": []
+}
