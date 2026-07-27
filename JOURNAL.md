@@ -171,3 +171,45 @@ flowchart TD
     I -->|JSON Response| B
     B -->A
 ```
+
+## 7. Deploy
+
+* **Fecha:** 26 de julio de 2026
+* **Estado:** En proceso
+
+---
+
+### Decisión
+
+**Despliegue:** Se desplegará la app.py junto a n8n en una isntancia de `VM.Standard.E2.1.Micro` haciendo referencia a los pasos que se aplican en e blog de Diego Hernandez en: https://diegohh.net/blog/n8n-self-hosting-tutorial. tratando de ampliar la memoria RAM para este flujo.
+
+### Flujo
+
+```mermaid
+flowchart TD
+    A[Usuario]
+
+    subgraph OCI["Oracle Cloud Infrastructure - VM.Standard.E2.1.Micro"]
+        B[Interfaz Web - Gradio app.py]
+        C[Webhook - n8n]
+        D[AI Agent]
+
+        E[Cohere Chat Model]
+        F[Simple Memory]
+        G[Simple Vector Store]
+        H[Embeddings Cohere 1024 dimensiones]
+
+        I[Respond to Webhook]
+
+        E -->|Chat Model| D
+        F -->|Memory| D
+        G -->|Tool - Búsqueda RAG| D
+        H -->|Embeddings| G
+    end
+
+    A --> B
+    B -->|HTTP POST mensaje| C
+    C -->|body.mensaje| D
+    D -->|Respuesta fundamentada| I
+    I -->|JSON Response| B
+```
