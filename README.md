@@ -20,11 +20,11 @@ Estos retrasos afectan tanto a la empresa como al cliente. La empresa pierde tie
 
 #### 2.1. Componentes Clave
 
-Infraestructura & Seguridad: Alojado en Oracle Cloud (OCI) sin puertos abiertos a Internet. La conectividad segura se gestiona con Cloudflare Tunnels y dominios HTTPS personalizados.
+- **Infraestructura & Seguridad:** Alojado en Oracle Cloud (OCI) sin puertos abiertos a Internet. La conectividad segura se gestiona con Cloudflare Tunnels y dominios HTTPS personalizados.
 
-Ingesta de Datos (Flujo 1): Procesa documentos de la carpeta `data` de este reositorio (puede aplicarse a otras herramientas de documentación Como Jira, Notion, etc.), genera embeddings de 1024 dimensiones con Cohere y los almacena en un Simple Vector Store.
+- **Ingesta de Datos (Flujo 1):** Procesa documentos de la carpeta `data` de este reositorio (puede aplicarse a otras herramientas de documentación Como Jira, Notion, etc.), genera embeddings de 1024 dimensiones con Cohere y los almacena en un Simple Vector Store.
 
-Agente RAG (Flujo 2 - Versión 2): n8n orquesta la comunicación entre la interfaz web (Gradio) y el agente de IA (Cohere Chat), recuperando contexto relevante de la vector DB e historial de conversación para generar respuestas fundamentadas.
+- **Agente RAG (Flujo 2 - Versión 2):** n8n orquesta la comunicación entre la interfaz web (Gradio) y el agente de IA (Cohere Chat), recuperando contexto relevante de la vector DB e historial de conversación para generar respuestas fundamentadas.
 
 ```mermaid
 flowchart TD
@@ -134,9 +134,27 @@ flowchart TD
 
 #### 6.1 Nivel Trainee
 
+**Respuesta 1:**
+![Respuesta 1 Trainee](img/trainee_1.png)
+
+**Respuesta 2:**
+![Respuesta 2 Trainee](img/trainee_2.png)
+
 #### 6.2 Nivel Junior
 
+**Respuesta 1:**
+![Respuesta 1 Junior](img/junior_1.png)
+
+**Respuesta 2:**
+![Respuesta 2 Junior](img/junior_2.png)
+
 #### 6.3 Nivel Senior
+
+**Respuesta 1:**
+![Respuesta 1 Senior](img/senior_1.png)
+
+**Respuesta 2:**
+![Respuesta 2 Senior](img/senior_2.png)
 
 ## Referencias
 
