@@ -129,6 +129,286 @@ flowchart TD
 
 ### 4. Instrucciones para ejecutar el proyecto
 
+#### 4.1. Requisitos Previos
+
+Antes de comenzar, asegúrate de contar con las siguientes credenciales y herramientas instaladas:
+
+* **Cuenta en Cohere:** API Key activa para habilitar los modelos de Embeddings (`embed-multilingual-v3.0`) y Chat (`command-a-03-2025`).
+* **Docker y Docker Compose:** Instalados en tu máquina local o en el VPS para desplegar las instancias de n8n.
+* **Python 3.10+:** Para la ejecución de la interfaz gráfica desarrollada en Gradio (`app.py`).
+* **Cuenta en Cloudflare (Solo para despliegue OCI):** Dominio propio y acceso a Cloudflare Zero Trust para la creación de túneles seguros (`cloudflared`).
+
+#### 4.2. Proyecto local en n8n
+
+1. Descargar los archivos: `n8n-RAG-Onboarding-Flujo-1.json` y `n8n-RAG-Onboarding-Flujo-2.json`
+2. Agregarlos en n8n y coloca credenciales de cohere.
+3. Ejecutar el flujo 1.
+4. Empezar a preguntar a Lucía tus preguntas en el chat de n8n del flujo 2
+
+#### 4.3. Proyecto en nube OCI con VM.Standard.E2.1.Micro
+
+1. Crear una instancia VM.Standard.E2.1.Micro con una distribución ubuntu 22.04 minimal
+2. Seguir los siguientes comandos de "Configurar n8n".
+
+<details>
+<summary><b>🔍 Ver comandos de configuración del servidor (SWAP y Docker)</b></summary>
+
+##### 1. Crear memoria Swap (2 GB)
+
+Si tu servidor tiene poca memoria RAM (por ejemplo, 1 GB en Oracle Cloud Always Free), es recomendable crear un archivo **Swap** para evitar problemas cuando el sistema se quede sin memoria.
+
+###### Crear el archivo Swap
+
+```bash
+sudo fallocate -l 2G /swapfile
+```
+
+###### Asignar permisos seguros
+
+```bash
+sudo chmod 600 /swapfile
+```
+
+###### Formatear el archivo como memoria Swap
+
+```bash
+sudo mkswap /swapfile
+```
+
+###### Activar la memoria Swap
+
+```bash
+sudo swapon /swapfile
+```
+
+###### Hacer permanente la configuración
+
+De esta manera, el archivo Swap estará disponible incluso después de reiniciar el servidor.
+
+```bash
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+####### Verificar que la Swap está activa
+
+```bash
+free -h
+```
+
+Deberías obtener una salida similar a:
+
+```text
+               total        used        free
+Mem:            972Mi       250Mi       500Mi
+Swap:           2.0Gi         0B        2.0Gi
+```
+
+---
+
+##### 2. Instalar Docker
+
+Actualizar la lista de paquetes:
+
+```bash
+sudo apt update
+```
+
+Instalar Docker y Docker Compose:
+
+```bash
+sudo apt install docker.io docker-compose-v2 -y
+```
+
+Agregar tu usuario al grupo **docker** para poder ejecutar Docker sin `sudo`:
+
+```bash
+sudo usermod -aG docker $USER
+```
+
+> **Importante:** Cierra la sesión y vuelve a iniciarla (o reinicia el servidor) para que los cambios surtan efecto.
+
+Verifica la instalación:
+
+```bash
+docker --version
+docker compose version
+```
+
+---
+
+##### 3. Crear el directorio del proyecto
+
+Crear una carpeta para almacenar la configuración de **n8n**:
+
+```bash
+mkdir ~/n8n-hosting
+cd ~/n8n-hosting
+```
+
+---
+
+##### 4. Crear el archivo `docker-compose.yml`
+
+Crear el archivo:
+
+```bash
+nano docker-compose.yml
+```
+
+Pega el siguiente contenido:
+
+```yaml
+version: "3.8"
+
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n
+    container_name: n8n
+    restart: always
+
+    ports:
+      - "127.0.0.1:5678:5678"
+
+    environment:
+      - N8N_HOST=localhost
+      - N8N_PORT=5678
+      - N8N_PROTOCOL=http
+      - NODE_ENV=production
+      - WEBHOOK_URL=http://127.0.0.1:5678/
+
+    volumes:
+      - n8n_data:/home/node/.n8n
+
+volumes:
+  n8n_data:
+```
+
+---
+
+##### 5. Iniciar n8n
+
+Levantar el contenedor en segundo plano:
+
+```bash
+docker compose up -d
+```
+
+Verificar que el contenedor está ejecutándose:
+
+```bash
+docker ps
+```
+
+Ver los registros del servicio:
+
+```bash
+docker compose logs -f
+```
+
+---
+
+##### 6. Acceder a n8n
+
+Como el puerto está enlazado únicamente a `127.0.0.1`, **n8n no será accesible directamente desde Internet**, lo cual mejora la seguridad.
+
+Podrás acceder mediante:
+
+- Un proxy inverso (Nginx, Traefik o Caddy).
+- Un túnel SSH.
+- Cloudflare Tunnel.
+- Una VPN como Tailscale o WireGuard.
+
+> **Recomendación:** No expongas el puerto `5678` directamente a Internet. Utiliza siempre un proxy inverso con HTTPS o una solución de acceso seguro.
+</details>
+
+3. Descargar los archivos: `n8n-RAG-Onboarding-Flujo-1.json`, `n8n-RAG-Onboarding-Flujo-2-Version-2.json` y `app.py`
+4. Agregar los archivos `.json` en n8n y colocar credenciales de cohere.
+5. Seguir los siguientes comandos de "Configurar Gradio".
+<details>
+<summary><b>🚀 Ver pasos para ejecutar la aplicación Gradio</b></summary>
+
+##### 1. Crear el directorio del proyecto
+
+Crear una carpeta para almacenar la aplicación de Gradio.
+
+```bash
+mkdir ~/gradio-n8n
+cd ~/gradio-n8n
+```
+
+---
+
+##### 2. Crear un entorno virtual
+
+Crear un entorno virtual de Python para aislar las dependencias del proyecto.
+
+```bash
+python3 -m venv venv
+```
+
+Activar el entorno virtual:
+
+```bash
+source venv/bin/activate
+```
+
+Al activarlo, la terminal debería verse similar a:
+
+```text
+(venv) esteban@servidor:~/gradio-n8n$
+```
+
+---
+
+##### 3. Instalar las dependencias
+
+Actualizar `pip`:
+
+```bash
+pip install --upgrade pip
+```
+
+Instalar las librerías necesarias:
+
+```bash
+pip install gradio requests
+```
+
+Opcionalmente, guardar las dependencias del proyecto:
+
+```bash
+pip freeze > requirements.txt
+```
+
+---
+
+##### 4. Crear el archivo de la aplicación
+
+Crear el archivo principal:
+
+```bash
+nano app.py
+```
+
+Pegar el código de la aplicación y guardar los cambios.
+
+---
+
+##### 5. Verificar la URL del Webhook
+
+Dentro de `app.py` encontrarás la siguiente variable:
+
+```python
+N8N_WEBHOOK_URL = "http://localhost:5678/webhook/mensaje"
+```
+
+Si **Gradio** y **n8n** se ejecutan en el mismo servidor, no es necesario modificar esta dirección. En caso contrario, reemplaza `localhost` por la dirección IP o el dominio donde esté disponible n8n.
+
+---
+</details>
+
+6. Empezar a preguntarle a Lucía tus preguntas en el chat de gradio.
+
 ---
 
 
