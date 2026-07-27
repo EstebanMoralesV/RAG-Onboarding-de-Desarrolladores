@@ -18,12 +18,84 @@ Estos retrasos afectan tanto a la empresa como al cliente. La empresa pierde tie
 
 ### 2. Arquitectura
 
-- **Orquestador:** n8n (elegido por su rapidez para prototipar flujos visuales).
-- **LLM y Embeddings:** Cohere (elegido por su compatibilidad entre embeddings y modelo de chat y por su rendimiento).
-- **Base de datos vectorial:** n8n In-Memory Vector Store.
-- **Almacenamiento de mensajes:** n8n In-Memory Almacenamiento de mensajes.
-  - **Justificación:** Se prioriza la velocidad de integración y la simplicidad sobre la persistencia a largo plazo.
-- **Deploy:** Oracle Cloud Infrastructure (OCI) en su capa gratuita VM.Standard.E2.1.Micro.
+#### 2.1. Componentes Clave
+
+Infraestructura & Seguridad: Alojado en Oracle Cloud (OCI) sin puertos abiertos a Internet. La conectividad segura se gestiona con Cloudflare Tunnels y dominios HTTPS personalizados.
+
+Ingesta de Datos (Flujo 1): Procesa documentos de la carpeta `data` de este reositorio (puede aplicarse a otras herramientas de documentación Como Jira, Notion, etc.), genera embeddings de 1024 dimensiones con Cohere y los almacena en un Simple Vector Store.
+
+Agente RAG (Flujo 2 - Versión 2): n8n orquesta la comunicación entre la interfaz web (Gradio) y el agente de IA (Cohere Chat), recuperando contexto relevante de la vector DB e historial de conversación para generar respuestas fundamentadas.
+
+```mermaid
+flowchart TD
+    A([Usuario / Cliente])
+
+    subgraph CF["Cloudflare (DNS + Tunnel Security)"]
+        CF_G["gradio.emtech.lat"]
+        CF_N["n8n.emtech.lat"]
+    end
+
+    subgraph OCI["Oracle Cloud Infrastructure - VM.Standard.E2.1.Micro (Sin puertos expuestos)"]
+        CFT[Cloudflare Tunnel Daemon]
+
+        subgraph Gradio_App["App Gradio"]
+            B[Interfaz Web - app.py]
+        end
+
+        subgraph N8N_Workflow["n8n Workflows"]
+
+            subgraph Ingestion_Flow["1. n8n-RAG-Onboarding-Flujo-1 / Indexación"]
+                DOC[/Carga de Documentos / Data\]
+                LOAD[Default Data Loader]
+                SPLIT[Recursive Character Text Splitter]
+                H_INGEST[Embeddings Cohere - 1024 dim]
+            end
+
+            subgraph Vector_DB["Almacenamiento Vectorial"]
+                G[(Simple Vector Store)]
+            end
+
+            subgraph RAG_Flow["2. n8n-RAG-Onboarding-Flujo-2-Version-2 / Agente RAG"]
+                C{Webhook - n8n}
+                D[[AI Agent]]
+                E[Cohere Chat Model]
+                F([Simple Memory])
+                H_RAG[Embeddings Cohere - 1024 dim]
+                I{Respond to Webhook}
+            end
+
+        end
+
+        %% Conexiones del Túnel con la VM
+        CFT <--> B
+        CFT <--> C
+
+        %% Relaciones del Flujo de Ingesta
+        DOC --> LOAD
+        LOAD --> SPLIT
+        SPLIT --> H_INGEST
+        H_INGEST -->|Almacena Vectores| G
+
+        %% Relaciones del Agente RAG
+        E -->|Chat Model| D
+        F -->|Memory| D
+        G -->|Tool - Búsqueda RAG| D
+        H_RAG -->|Genera Query Embedding| G
+    end
+
+    %% Peticiones Externas vía Cloudflare
+    A -->|HTTPS| CF_G
+    A -->|HTTPS| CF_N
+
+    CF_G --> CFT
+    CF_N --> CFT
+
+    %% Interacción entre Gradio y n8n
+    B -->|HTTP POST mensaje| C
+    C -->|body.mensaje| D
+    D -->|Respuesta fundamentada| I
+    I -->|JSON Response| B
+```
 
 ---
 
