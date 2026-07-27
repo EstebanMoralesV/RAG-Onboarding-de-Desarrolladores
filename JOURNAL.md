@@ -132,3 +132,42 @@ flowchart TD
 
     B -->|Respuesta fundamentada| G[Respuesta al usuario]
 ```
+
+## 6. Interfaz de chat y webhook
+
+* **Fecha:** 26 de julio de 2026
+* **Estado:** Completado
+
+---
+
+### Decisión
+
+**Versión 2 de flujo 2:** Se creará una nueva version para crear un Webhook para que sea disponible con mensajes fuera de n8n.
+
+**Interfaz Web:** Se utilizará Gradio para desarrollar una interfaz gráfica rápida y funcional, tomando como base la lógica del proyecto CHATBOT (Gokul-Raja84). El diseño visual y los estilos aplicarán el tema Material Design RD de d8ahazard.
+
+**Integración:** La interfaz enviará las peticiones vía HTTP POST hacia un Webhook, el cual extraerá el texto del usuario desde {{ $json.body.mensaje }} para detonar la ejecución del Agente de IA.
+
+### Flujo
+
+```mermaid
+flowchart TD
+    A[Usuario] --> B[Interfaz Web - Gradio]
+    B -->|HTTP POST / mensaje| C[Webhook]
+
+    C -->|body.mensaje| D[AI Agent]
+
+    subgraph Componentes del Agente
+        E[Cohere Chat Model] -->|Chat Model| D
+        F[Simple Memory] -->|Memory / Límite 5 mensajes| D
+        G[(Simple Vector Store1)] -->|Tool / Búsqueda RAG| D
+    end
+
+    subgraph Configuración del Vector Store
+        H[Embeddings Cohere1] -->|Embeddings / 1024 dimensiones| G
+    end
+
+    D -->|Respuesta fundamentada| I[Webhook]
+    I -->|JSON Response| B
+    B -->A
+```

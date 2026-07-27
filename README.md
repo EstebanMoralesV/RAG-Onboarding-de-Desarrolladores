@@ -49,3 +49,9 @@ Estos retrasos afectan tanto a la empresa como al cliente. La empresa pierde tie
 [1] Guru. *Documentación de software: qué es y por qué es importante*. https://www.getguru.com/es/reference/software-documentation
 
 [2] Centro Banamex. *¿Qué es la documentación interna y externa?* https://www.centrobanamex.com.mx/que-es-la-documentacion-interna-y-externa/
+
+[3] Gokul-Raja84. Repositorio del proyecto CHATBOT. https://github.com/Gokul-Raja84/CHATBOT
+
+[4] Gokul-Raja84. Python Chatbot .ipynb. https://github.com/Gokul-Raja84/CHATBOT/blob/main/Python%20Chatbot%20.ipynb
+
+[5] Gradio. *Material Design RD Theme Gallery*. [https://gradio.app/themes/gallery?id=d8ahazard%2Fmaterial_design_rd](https://gradio.app/themes/gallery?id=d8ahazard%2Fmaterial_design_rd)
