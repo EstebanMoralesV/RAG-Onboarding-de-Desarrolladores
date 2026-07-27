@@ -175,7 +175,7 @@ flowchart TD
 ## 7. Deploy
 
 * **Fecha:** 26 de julio de 2026
-* **Estado:** En proceso
+* **Estado:** completado
 
 ---
 
@@ -208,6 +208,73 @@ flowchart TD
     end
 
     A --> B
+    B -->|HTTP POST mensaje| C
+    C -->|body.mensaje| D
+    D -->|Respuesta fundamentada| I
+    I -->|JSON Response| B
+```
+
+## 8. Exposición de Servicios y Configuración de Red
+
+* **Fecha:** 27 de julio de 2026
+* **Estado:** En proceso
+
+---
+
+### Decisión de Arquitectura e Infraestructura de Red
+
+* **Proveedor de Seguridad y Enrutamiento:** Se seleccionó **Cloudflare** debido a la experiencia previa con la plataforma y a que ya se contaba con el dominio registrado `emtech.lat`.
+
+* **Seguridad y Enrutamiento de Puertos:** Para evitar exponer la instancia directamente a internet abriendo puertos públicos (como el `5678` de n8n o el `7860` de Gradio), se implementó un esquema de **Cloudflare Tunnels (Zero Trust)**. Esto permite:
+  * Crear un túnel cifrado hacia la red de Cloudflare sin necesidad de abrir puertos de entrada en el VPS.
+  * Asignar subdominios dedicados de forma segura:
+    * `n8n.emtech.lat` para la gestión de flujos e integración.
+    * `gradio.emtech.lat` para la interfaz de usuario web.
+  * Proveer certificados SSL/TLS automáticos para garantizar el tráfico cifrado vía HTTPS.
+
+### Flujo
+
+```mermaid
+flowchart TD
+    A[Usuario / Cliente]
+
+    subgraph CF["Cloudflare (DNS + Tunnel Security)"]
+        CF_G["gradio.emtech.lat"]
+        CF_N["n8n.emtech.lat"]
+    end
+
+    subgraph OCI["Oracle Cloud Infrastructure - VM.Standard.E2.1.Micro (Sin puertos expuestos)"]
+        CFT[Cloudflare Tunnel Daemon]
+
+        subgraph Gradio_App["App Gradio"]
+            B[Interfaz Web - app.py]
+        end
+
+        subgraph N8N_Workflow["n8n Automation"]
+            C[Webhook - n8n]
+            D[AI Agent]
+            E[Cohere Chat Model]
+            F[Simple Memory]
+            G[Simple Vector Store]
+            H[Embeddings Cohere 1024 dim]
+            I[Respond to Webhook]
+        end
+
+        CFT <--> B
+        CFT <--> C
+
+        E -->|Chat Model| D
+        F -->|Memory| D
+        G -->|Tool - Búsqueda RAG| D
+        H -->|Embeddings| G
+    end
+
+    A -->|HTTPS| CF_G
+    A -->|HTTPS| CF_N
+
+    CF_G --> CFT
+    CF_N --> CFT
+
     B -->|HTTP POST mensaje| C
     C -->|body.mensaje| D
     D -->|Respuesta fundamentada| I
