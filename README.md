@@ -101,6 +101,30 @@ flowchart TD
 
 ### 3. Tecnologías y herramientas utilizadas (Decisiones de elección en `JOURNAL.md`)
 
+#### Infraestructura & Redes
+* **Dominios personalizados:** `gradio.emtech.lat` (UI) y `n8n.emtech.lat` (Workflows).
+* **Oracle Cloud Infrastructure (OCI):** Servidor GNU/Linux con ubuntu 22.04 minimal en la nube (**VM.Standard.E2.1.Micro**).
+* **Cloudflare:** Gestión de DNS, certificados SSL/HTTPS y seguridad web.
+* **Cloudflare Tunnel (`cloudflared`):** Exposición segura de servicios locales a Internet sin abrir puertos en el firewall.
+
+#### Inteligencia Artificial & RAG
+* **Cohere API:**
+  * **Chat Model:** LLM encargado de procesar el contexto y redactar las respuestas.
+  * **Embeddings (1024 dim):** Vectorización de texto para búsqueda semántica.
+* **Recursive Character Text Splitter:** Fragmentación inteligente de textos.
+* **Simple Vector Store:** Base de datos vectorial para almacenamiento e indexación.
+* **Simple Memory:** Mantenimiento del contexto de conversación del agente.
+
+#### Orquestación & Frontend
+* **n8n:** Orquestador de flujos de trabajo (agente de IA, gestión de memoria e ingesta).
+* **Gradio (`Python`):** Interfaz gráfica web para la interacción del usuario.
+
+#### Fuentes de Datos e Integraciones
+* **GitHub API (`HTTP GET`):** Extracción automatizada de documentos de la carpeta `data` de este repositorios para la ingesta de datos.
+
+#### Comunicación
+* **REST API & Webhooks:** Intercambio de peticiones `HTTP POST` / `GET` y payloads `JSON` entre componentes.
+
 ---
 
 ### 4. Instrucciones para ejecutar el proyecto
